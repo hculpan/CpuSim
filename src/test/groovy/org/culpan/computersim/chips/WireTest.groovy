@@ -102,7 +102,7 @@ class WireTest extends GroovyTestCase {
             d1, 0,
             d2, 0,
             d3, 0
-        ])
+        ].toArray())
 
         c1.setInputOn(0)
         c1.setInputOn(1)

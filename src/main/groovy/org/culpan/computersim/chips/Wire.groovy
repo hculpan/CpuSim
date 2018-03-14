@@ -22,9 +22,11 @@ class Wire {
     }
 
     static Wire createWire(Chip fromChip, int fromIdx, Object []toChipsAndIdxs) {
-        def toValues = [toChipsAndIdxs.length / 2]
-        for (int i = 0; i < toChipsAndIdxs.length; i+=2) {
-            toValues.add(new Tuple2(toChipsAndIdxs[i], toChipsAndIdxs[i+1]))
+        def toValues = new Tuple2<Chip, Integer>[toChipsAndIdxs.length / 2]
+        for (int i = 0; i < toChipsAndIdxs.length / 2; i++) {
+            int j = i * 2
+            Tuple2<Chip, Integer> t = new Tuple2(toChipsAndIdxs[j], toChipsAndIdxs[j + 1])
+            toValues[i] = t
         }
         Wire wire = new Wire(toValues)
 
