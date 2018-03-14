@@ -1,0 +1,29 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+
+def mainClass = 'org.culpan.computersim.Main'
+mainClassName = mainClass
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.14'
+    testCompile 'junit:junit:4.12'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+}
+
+task customFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+    baseName = 'computer-sim'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
