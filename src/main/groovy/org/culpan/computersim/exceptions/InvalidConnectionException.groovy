@@ -1,4 +1,4 @@
-package org.culpan.computersim.utils
+package org.culpan.computersim.exceptions
 
 class InvalidConnectionException extends Exception {
     InvalidConnectionException(int inputIndex) {

@@ -22,6 +22,10 @@ class Wire {
     }
 
     static Wire createWire(Chip fromChip, int fromIdx, Object []toChipsAndIdxs) {
+        if (toChipsAndIdxs.length == 1 && toChipsAndIdxs[0] instanceof ArrayList) {
+            toChipsAndIdxs = ((ArrayList<Object>)toChipsAndIdxs[0]).toArray()
+        }
+
         def toValues = new Tuple2<Chip, Integer>[toChipsAndIdxs.length / 2]
         for (int i = 0; i < toChipsAndIdxs.length / 2; i++) {
             int j = i * 2

@@ -1,6 +1,10 @@
 package org.culpan.computersim.chips
 
 class Or extends Chip {
+    Or() {
+        super(2, 1)
+    }
+
     Or(Wire output) {
         super(2, output)
     }

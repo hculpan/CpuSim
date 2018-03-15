@@ -1,0 +1,32 @@
+// Define chips
+
+def e1 = ExternalInput(2)
+
+def c1 = Not()
+def c2 = Not()
+
+def c3 = And()
+def c4 = And()
+
+def c5 = Or()
+
+def c6 = DummyChip()
+
+wire(e1, 0, [
+        c2, 0,
+        c3, 0
+])
+wire(e1, 1, [
+        c1, 0,
+        c4, 1
+])
+wire(c1, 0, c3, 1)
+wire(c2, 0, c4, 0)
+wire(c3, 0, c5, 0)
+wire(c4, 0, c5, 1)
+wire(c5, 0, c6, 0)
+
+e1.setInputOff(0)
+e1.setInputOn(1)
+
+println c6.value

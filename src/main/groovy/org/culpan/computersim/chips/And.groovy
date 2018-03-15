@@ -1,6 +1,10 @@
 package org.culpan.computersim.chips
 
 class And extends Chip {
+    And() {
+        super(2, 1)
+    }
+
     And(Wire output) {
         super(2, output)
     }

@@ -1,7 +1,5 @@
 package org.culpan.computersim.chips
 
-import org.culpan.computersim.utils.InvalidConnectionException
-
 class Nand extends Chip {
     Nand(Wire output) {
         super(2, output)

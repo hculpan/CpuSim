@@ -1,6 +1,7 @@
 package org.culpan.computersim.chips
 
-import org.culpan.computersim.utils.InvalidConnectionException
+import org.culpan.computersim.exceptions.InvalidConnectionException
+import org.culpan.computersim.exceptions.MissingChipDefinitionException
 
 enum InputValue { notset, on, off }
 
@@ -31,6 +32,22 @@ abstract class Chip {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
         outputs[idx] = wire
+    }
+
+    /**
+     * This resets all the incoming values to notset for current chip only
+     */
+    void reset() {
+        values.each { it = InputValue.notset }
+    }
+
+    /**
+     * This resets this chip and all chips connected on outputs
+     */
+    void resetAll() {
+        reset();
+
+        outputs.each { it.outputs.each { it.first.resetAll() } }
     }
 
     /**
@@ -79,7 +96,7 @@ abstract class Chip {
     protected void setOutputOn(int idx) throws InvalidConnectionException {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
-        outputs.each { it.setValueOn() }
+        outputs[idx].setValueOn()
     }
 
     /**
@@ -90,7 +107,7 @@ abstract class Chip {
     protected void setOutputOff(int idx) throws InvalidConnectionException {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
-        outputs.each { it.setValueOff() }
+        outputs[idx].setValueOff()
     }
 
     /**
@@ -105,5 +122,38 @@ abstract class Chip {
      */
     boolean readyToProcess() {
         return values.find { it == InputValue.notset } == null
+    }
+
+    /**
+     * This method is a way
+     * @param name
+     * @return
+     */
+    static Chip getChip(String name) {
+        Chip result = null
+        switch (name) {
+            case "And":
+                result = new And()
+                break
+            case "Or":
+                result = new Or()
+                break
+            case "Not":
+                result = new Not()
+                break
+            case "DummyChip":
+                result = new DummyChip()
+                break
+            case "ExternalOutput":
+                result = new ExternalOutput()
+                break
+            default:
+                throw new MissingChipDefinitionException(name)
+        }
+        return result
+    }
+
+    static Chip getExternalInputChip(int connections) {
+        return new ExternalInput(connections)
     }
 }
