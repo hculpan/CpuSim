@@ -6,6 +6,7 @@
 *.lock
 *.bin
 build/
+.gradle/
 
 # Log file
 *.log
