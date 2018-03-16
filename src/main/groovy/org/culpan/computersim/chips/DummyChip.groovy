@@ -7,6 +7,10 @@ class DummyChip extends Chip {
         super(1)
     }
 
+    void setOutputCount(int outputCount) {
+        initialize(outputCount, outputCount)
+    }
+
     @Override
     protected void process() {
         value = values[0]

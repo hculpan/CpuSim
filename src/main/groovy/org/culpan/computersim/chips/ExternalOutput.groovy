@@ -9,6 +9,10 @@ class ExternalOutput extends Chip {
         super(inputCount, 0)
     }
 
+    void setOutputCount(int outputCount) {
+        initialize(outputCount, outputCount)
+    }
+
     @Override
     protected void process() {
         values.each { println "Result: ${it}" }

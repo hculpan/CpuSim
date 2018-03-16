@@ -17,6 +17,10 @@ class ExternalInput extends Chip {
         }
     }
 
+    void setInputCount(int inputCount) {
+        initialize(inputCount, inputCount)
+    }
+
     @Override
     protected void process() {
         for (int i = 0; i < values.length; i++) {

@@ -3,35 +3,44 @@ package org.culpan.computersim.chips
 import org.culpan.computersim.exceptions.InvalidConnectionException
 import org.culpan.computersim.exceptions.MissingChipDefinitionException
 
-enum InputValue { notset, on, off }
-
 abstract class Chip {
     protected InputValue [] values
 
     protected Wire []outputs
 
     Chip(int inputCount, int outputCount) {
+        initialize(inputCount, outputCount)
+    }
+
+    Chip(int inputCount, Wire ... outputs) {
+        initialize(inputCount, outputs.length)
+        for (int i = 0; i < outputs.length; i++) {
+            setOutputWire(i, outputs[i])
+        }
+    }
+
+    void initialize(int inputCount, int outputCount) {
         values = new InputValue[inputCount]
         for (int i = 0; i < inputCount; i++) {
             values[i] = InputValue.notset
         }
 
         outputs = new Wire[outputCount]
-    }
-
-    Chip(int inputCount, Wire ... outputs) {
-        values = new InputValue[inputCount]
-        for (int i = 0; i < inputCount; i++) {
-            values[i] = InputValue.notset
+        for (int i = 0; i < outputs.length; i++) {
+            outputs[i] = new Wire()
         }
-
-        this.outputs = outputs
     }
 
     void setOutputWire(int idx, Wire wire) throws InvalidConnectionException {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
         outputs[idx] = wire
+    }
+
+    Wire getOutputWire(int idx) throws InvalidConnectionException {
+        if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
+
+        return outputs[idx]
     }
 
     /**
@@ -78,6 +87,18 @@ abstract class Chip {
         if (readyToProcess()) {
             process()
         }
+    }
+
+    InputValue getInput(int idx) throws InvalidConnectionException {
+        if (idx < 0 || idx >= inputCount()) throw new InvalidConnectionException(idx)
+
+        values[idx]
+    }
+
+    int getInputBinary(int idx) throws InvalidConnectionException {
+        if (idx < 0 || idx >= inputCount()) throw new InvalidConnectionException(idx)
+
+        (values[idx] == InputValue.off ? 0 : 1)
     }
 
     void setInputOn(int idx) throws InvalidConnectionException {

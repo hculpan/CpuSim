@@ -1,5 +1,6 @@
 package org.culpan.computersim.utils
 
+import org.culpan.computersim.chips.Chip
 import org.junit.Test
 
 class SimRunnerTest extends GroovyTestCase {
@@ -48,5 +49,19 @@ class SimRunnerTest extends GroovyTestCase {
     void testRunSim_ClasspathFile() {
         def simRunner = new SimRunner()
         simRunner.runBuiltInScript("/chips/Xor.hdl")
+        Chip xor = simRunner.input
+
+        xor.setInputOn(0)
+        xor.setInputOn(1)
+
+        println "Inputs: ${xor.getInputBinary(0)} ${xor.getInputBinary(1)} : ${simRunner.output.value.binaryValue}"
+
+        xor.resetAll()
+
+        xor.setInputOn(0)
+        xor.setInputOff(1)
+
+        println "Inputs: ${xor.getInputBinary(0)} ${xor.getInputBinary(1)} : ${simRunner.output.value.binaryValue}"
+
     }
 }
