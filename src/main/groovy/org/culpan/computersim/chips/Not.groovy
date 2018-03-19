@@ -8,17 +8,17 @@ class Not extends Chip {
     Not(Wire output) {
         super(1, output)
 
-        if (outputs.length != 1) {
+        if (outputCount() != 1) {
           throw new RuntimeException("Invalid number of outputs: ${outputs.length}")
         }
     }
 
     @Override
     protected void process() {
-        if (values[0] == InputValue.on) {
-            outputs[0].setValueOff()
+        if (getInput(0) == InputValue.on) {
+            setOutputOff(0)
         } else {
-            outputs[0].setValueOn()
+            setOutputOn(0)
         }
     }
 }

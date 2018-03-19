@@ -11,7 +11,7 @@ class And extends Chip {
 
     @Override
     protected void process() {
-        if (values[0] == InputValue.on && values[1] == InputValue.on) {
+        if (getInput(0) == InputValue.on && getInput(1) == InputValue.on) {
             setOutputOn(0)
         } else {
             setOutputOff(0)

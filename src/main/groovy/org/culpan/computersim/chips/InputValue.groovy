@@ -1,15 +1,14 @@
 package org.culpan.computersim.chips
 
 enum InputValue {
-    notset(-1), on(1), off(0);
+    notset((byte)-1), on((byte)1), off((byte)0)
+
+    private final byte binary
 
     InputValue(byte binary) {
         this.binary = binary
     }
 
-    private final byte binary
-
     byte getBinary() { return binary }
-
 }
 

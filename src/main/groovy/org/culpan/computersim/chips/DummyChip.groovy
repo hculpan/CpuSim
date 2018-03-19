@@ -13,6 +13,6 @@ class DummyChip extends Chip {
 
     @Override
     protected void process() {
-        value = values[0]
+        value = getInput(0)
     }
 }

@@ -28,7 +28,3 @@ wire(c4, 0, c5, 1)
 // Wire outputs
 wireOutput(c5, 0, 0)
 
-// input.setInputOff(0)
-// input.setInputOn(1)
-
-// println output.value

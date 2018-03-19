@@ -11,6 +11,15 @@ class Wire {
         this.outputs.addAll(outputs)
     }
 
+    Wire clone(Chip fromChip, Integer fromIndex) {
+        Wire result = new Wire(fromChip, fromIndex)
+        outputs.each {
+            result.outputs.add(new Tuple2<Chip, Integer>(it.first.clone(), new Integer(it.second)))
+        }
+
+        result
+    }
+
     void setValueOn() {
         outputs.each { it.first.input(it.second.intValue(), InputValue.on) }
     }
