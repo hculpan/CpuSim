@@ -1,0 +1,21 @@
+///////////////////////////////////////
+//  Xor3 chip
+///////////////////////////////////////
+
+// Define inputs and outputs
+inputs(3)
+outputs(1)
+
+Chip x1 = Xor()
+Chip x2 = Xor()
+
+// Wire inputs
+wireInput(0, x1, 0)
+wireInput(1, x1, 1)
+wireInput(2, x2, 0)
+
+// Internal wires
+wire(x1, 0, x2, 1)
+
+// Wire outputs
+wireOutput(x2, 0, 0)

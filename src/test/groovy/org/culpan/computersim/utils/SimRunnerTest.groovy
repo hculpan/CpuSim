@@ -5,7 +5,7 @@ import org.culpan.computersim.chips.ChipStash
 import org.junit.Test
 
 class SimRunnerTest extends GroovyTestCase {
-    @Test
+/*    @Test
     void testRunSim_String() {
         def script = '''
             import org.culpan.computersim.chips.*
@@ -44,6 +44,32 @@ class SimRunnerTest extends GroovyTestCase {
 
         def simRunner = new SimRunner()
         simRunner.runSim(script)
+    } */
+
+    @Test
+    void testLoadChipWithScript_On() {
+        def resource = getClass().getResource("/chips/Xor.hdl")
+        SimRunner simRunner = new SimRunner()
+        Chip xor = simRunner.loadChipWithScript(resource.toURI())
+
+        xor.setInputOn(0)
+        xor.setInputOff(1)
+
+        println "Xor: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutput(0).binary}"
+        assert xor.getOutput(0).binary == 1
+    }
+
+    @Test
+    void testLoadChipWithScript_Off() {
+        def resource = getClass().getResource("/chips/Xor.hdl")
+        SimRunner simRunner = new SimRunner()
+        Chip xor = simRunner.loadChipWithScript(resource.toURI())
+
+        xor.setInputOn(0)
+        xor.setInputOn(1)
+
+        println "Xor: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutput(0).binary}"
+        assert xor.getOutput(0).binary == 0
     }
 
     @Test
@@ -53,13 +79,27 @@ class SimRunnerTest extends GroovyTestCase {
         xor.setInputOn(0)
         xor.setInputOn(1)
 
-        println "Inputs: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutputChip().getOutput(0).binary}"
+        println "Inputs: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutput(0).binary}"
+        assert xor.getOutput(0).binary == 0
 
         xor = ChipStash.getChip("Xor")
 
         xor.setInputOn(0)
         xor.setInputOff(1)
 
-        println "Inputs: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutputChip().getOutput(0).binary}"
+        println "Xor: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutput(0).binary}"
+        assert xor.getOutput(0).binary == 1
+    }
+
+    @Test
+    void testRunSim_Filesystem() {
+        Chip xor = ChipStash.getChip("Xor3")
+
+        xor.setInputOn(0)
+        xor.setInputOn(1)
+        xor.setInputOff(2)
+
+        println "Xor3: ${xor.getInput(0).binary} ${xor.getInput(1).binary} ${xor.getInput(2).binary}: ${xor.getOutput(0).binary}"
+        assert xor.getOutput(0).binary == 0
     }
 }

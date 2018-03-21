@@ -11,10 +11,17 @@ class Wire {
         this.outputs.addAll(outputs)
     }
 
-    Wire clone(Chip fromChip, Integer fromIndex) {
+    Wire clone(Chip fromChip, Integer fromIndex, Map<Integer, Chip> chipMap) {
         Wire result = new Wire(fromChip, fromIndex)
         outputs.each {
-            result.outputs.add(new Tuple2<Chip, Integer>(it.first.clone(), new Integer(it.second)))
+            Integer hashCode = System.identityHashCode(it.first)
+            if (chipMap.containsKey(hashCode)) {
+                result.outputs.add(new Tuple2<Chip, Integer>(chipMap.get(hashCode), new Integer(it.second)))
+            } else {
+                Chip clonedChip = it.first.clone()
+                chipMap.put(hashCode, clonedChip)
+                result.outputs.add(new Tuple2<Chip, Integer>(clonedChip, new Integer(it.second)))
+            }
         }
 
         result

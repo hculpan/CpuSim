@@ -23,7 +23,10 @@ class ExternalInput extends Chip {
 
     @Override
     protected void process() {
+        print "${name}: "
+
         for (int i = 0; i < inputCount(); i++) {
+            print "${outputValues[i].binary} "
             if (getInput(i) == InputValue.on) {
                 setOutputOn(i)
             } else {

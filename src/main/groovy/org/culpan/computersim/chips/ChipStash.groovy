@@ -6,6 +6,16 @@ import org.culpan.computersim.utils.SimRunner
 class ChipStash {
     private static final Map<String, Chip> chips = new HashMap<>()
 
+    private static final ArrayList<String> paths = new ArrayList<>()
+
+    static {
+        String path = System.getProperty("chippath")
+        if (!path || path.isEmpty()) {
+            path = "./chips"
+        }
+        paths.addAll(path.split(File.pathSeparator))
+    }
+
     static Chip getChip(String name) {
         Chip result = chips.get(name)
 
@@ -32,13 +42,19 @@ class ChipStash {
                 default:
                     result = loadFromClasspath(name)
                     if (!result) {
-                        throw new MissingChipDefinitionException(name)
+                        result = loadFromFilesystem(name)
+                        if (!result) {
+                            throw new MissingChipDefinitionException(name)
+                        }
                     }
                     chips.put(name, result)
                     result = result.clone()
             }
+            result.setName(name)
+            result.resetAll()
         } else {
             result = result.clone()
+            result.resetAll()
         }
 
         return result
@@ -49,8 +65,21 @@ class ChipStash {
         def resource = getClass().getResource("/chips/${name}.hdl")
         if (resource) {
             SimRunner simRunner = new SimRunner()
-            result = simRunner.loadChipWithBuiltInScript(resource.toURI())
+            result = simRunner.loadChipWithScript(resource.toURI())
             result = result.clone()
+        }
+        result
+    }
+
+    static Chip loadFromFilesystem(String name) {
+        Chip result = null
+        for (int i = 0; i < paths.size(); i++) {
+            def resource = new File(paths.get(i) + File.separator + "${name}.hdl")
+            if (resource) {
+                SimRunner simRunner = new SimRunner()
+                result = simRunner.loadChipWithScript(resource.toURI())
+                result = result.clone()
+            }
         }
         result
     }

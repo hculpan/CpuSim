@@ -4,6 +4,8 @@ import org.culpan.computersim.exceptions.InvalidConnectionException
 import org.culpan.computersim.exceptions.InvalidInputValueException
 
 abstract class Chip {
+    protected String name
+
     protected InputValue [] inputValues
 
     protected InputValue [] outputValues
@@ -11,6 +13,8 @@ abstract class Chip {
     protected Wire []outputs
 
     private Chip outputChip = this
+
+    private final static Map<Integer, Chip> chipMap = new HashMap<>()
 
     Chip(int inputCount, int outputCount) {
         initialize(inputCount, outputCount)
@@ -37,9 +41,28 @@ abstract class Chip {
         }
     }
 
+    void printOutputs() {
+        printOutputs("")
+    }
+
+    void printOutputs(String indent) {
+        print indent + "${name} (${this.class.getName().substring(this.class.getName().lastIndexOf(".") + 1)}@${System.identityHashCode(this)}): "
+        for (int i = 0; i < outputValues.length; i++) {
+            print "${outputValues[i].binary} "
+        }
+        println ""
+
+        for (int i = 0; i < outputs.size(); i++) {
+            for (int j = 0; j < outputs[i].outputs.size(); j++) {
+                outputs[i].outputs.get(j).first.printOutputs("  " + indent)
+            }
+        }
+    }
+
     @Override
     Chip clone() {
         Chip result = this.class.newInstance()
+        result.name = this.name
         result.initialize(this.inputCount(), this.outputCount())
 
         for (int i = 0; i < inputCount(); i++) {
@@ -48,11 +71,36 @@ abstract class Chip {
 
         for (int i = 0; i < outputs.length; i++) {
             result.outputValues[i] = outputValues[i]
-            result.outputs[i] = outputs[i].clone(result, i)
+            result.outputs[i] = outputs[i].clone(result, i, chipMap)
+        }
+
+        // Find correct output chip
+        if (this == outputChip) {
+            result.outputChip = result
+        } else {
+            result.outputChip = findChipType(result, this.outputChip.class)
         }
 
         result.resetAll()
         result
+    }
+
+    Chip findChipType(Chip rootChip, Class outputChipClass) {
+        if (rootChip.class == outputChipClass) {
+            return rootChip
+        } else {
+            Chip result
+            for (int i = 0; i < rootChip.outputs.length; i++) {
+                for (int j = 0; j < rootChip.outputs[i].outputs.size(); j++) {
+                    result = findChipType(rootChip.outputs[i].outputs.get(j).first, outputChipClass)
+                    if (result) {
+                        break
+                    }
+                }
+            }
+
+            return result
+        }
     }
 
     void setOutputWire(int idx, Wire wire) throws InvalidConnectionException {
@@ -176,7 +224,7 @@ abstract class Chip {
     InputValue getOutput(int idx) {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
-        outputValues[idx]
+        getOutputChip().outputValues[idx]
     }
 
     /**
@@ -193,7 +241,14 @@ abstract class Chip {
         return inputValues.find { it == InputValue.notset } == null
     }
 
-    /**
+    String getName() {
+        return name
+    }
+
+    void setName(String name) {
+        this.name = name
+    }
+/**
      * This method is a way
      * @param name
      * @return

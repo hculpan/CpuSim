@@ -21,7 +21,9 @@ class SimRunner {
 
         CustomBinding() {
             chipVariables["input"] = input
+            input.setName("input")
             chipVariables["output"] = output
+            output.setName("output")
         }
 
         def getVariable(String name) {
@@ -53,7 +55,7 @@ class SimRunner {
         shell.evaluate new File(script.toURI())
     }
 
-    Chip loadChipWithBuiltInScript(URI uri) {
+    Chip loadChipWithScript(URI uri) {
         def binding = new CustomBinding()
 
         def importCustomizer = new ImportCustomizer()
