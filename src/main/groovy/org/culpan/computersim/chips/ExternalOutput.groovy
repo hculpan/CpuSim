@@ -17,10 +17,8 @@ class ExternalOutput extends Chip {
 
     @Override
     protected void process() {
-        print "${name} "
         for (int i = 0; i < outputCount(); i++) {
             output(i, getInput(i))
-            print "${outputValues[i].binary} "
         }
     }
 }

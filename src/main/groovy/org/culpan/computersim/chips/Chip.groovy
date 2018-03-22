@@ -3,28 +3,43 @@ package org.culpan.computersim.chips
 import org.culpan.computersim.exceptions.InvalidConnectionException
 import org.culpan.computersim.exceptions.InvalidInputValueException
 
-abstract class Chip {
-    protected String name
+class Chip {
+    class Wire {
+        int fromIndex
+
+        Chip toChip
+
+        int toIndex
+
+        Wire(int fromIndex, Chip toChip, int toIndex) {
+            this.fromIndex = fromIndex
+            this.toChip = toChip
+            this.toIndex = toIndex
+        }
+
+        void outputValue(int fromIndex, InputValue inputValue) {
+            if (this.fromIndex == fromIndex) {
+                toChip.output(toIndex, inputValue)
+            }
+        }
+    }
+
+    String name
 
     protected InputValue [] inputValues
 
     protected InputValue [] outputValues
 
-    protected Wire []outputs
+    protected final List<Wire> outputWires = new ArrayList<Wire>()
 
     private Chip outputChip = this
 
-    private final static Map<Integer, Chip> chipMap = new HashMap<>()
+    Chip() {
+        initialize(0, 0)
+    }
 
     Chip(int inputCount, int outputCount) {
         initialize(inputCount, outputCount)
-    }
-
-    Chip(int inputCount, Wire ... outputs) {
-        initialize(inputCount, outputs.length)
-        for (int i = 0; i < outputs.length; i++) {
-            setOutputWire(i, outputs[i])
-        }
     }
 
     void initialize(int inputCount, int outputCount) {
@@ -34,102 +49,21 @@ abstract class Chip {
         }
 
         outputValues = new InputValue[outputCount]
-        outputs = new Wire[outputCount]
-        for (int i = 0; i < outputs.length; i++) {
-            outputValues[i] = InputValue.notset
-            outputs[i] = new Wire()
-        }
-    }
-
-    void printOutputs() {
-        printOutputs("")
-    }
-
-    void printOutputs(String indent) {
-        print indent + "${name} (${this.class.getName().substring(this.class.getName().lastIndexOf(".") + 1)}@${System.identityHashCode(this)}): "
         for (int i = 0; i < outputValues.length; i++) {
-            print "${outputValues[i].binary} "
-        }
-        println ""
-
-        for (int i = 0; i < outputs.size(); i++) {
-            for (int j = 0; j < outputs[i].outputs.size(); j++) {
-                outputs[i].outputs.get(j).first.printOutputs("  " + indent)
-            }
+            outputValues[i] = InputValue.notset
         }
     }
 
-    @Override
-    Chip clone() {
-        Chip result = this.class.newInstance()
-        result.name = this.name
-        result.initialize(this.inputCount(), this.outputCount())
-
-        for (int i = 0; i < inputCount(); i++) {
-            result.inputValues[i] = inputValues[i]
-        }
-
-        for (int i = 0; i < outputs.length; i++) {
-            result.outputValues[i] = outputValues[i]
-            result.outputs[i] = outputs[i].clone(result, i, chipMap)
-        }
-
-        // Find correct output chip
-        if (this == outputChip) {
-            result.outputChip = result
-        } else {
-            result.outputChip = findChipType(result, this.outputChip.class)
-        }
-
-        result.resetAll()
-        result
+    void addOutputWire(int fromOutput, Chip toChip, int toInput) {
+        outputWires.add(new Wire(fromOutput, toChip, toInput))
     }
 
-    Chip findChipType(Chip rootChip, Class outputChipClass) {
-        if (rootChip.class == outputChipClass) {
-            return rootChip
-        } else {
-            Chip result
-            for (int i = 0; i < rootChip.outputs.length; i++) {
-                for (int j = 0; j < rootChip.outputs[i].outputs.size(); j++) {
-                    result = findChipType(rootChip.outputs[i].outputs.get(j).first, outputChipClass)
-                    if (result) {
-                        break
-                    }
-                }
-            }
-
-            return result
-        }
+    void addOutputWire(Chip toChip) {
+        addOutputWire(0, toChip, 0)
     }
 
-    void setOutputWire(int idx, Wire wire) throws InvalidConnectionException {
-        if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
-
-        outputs[idx] = wire
-    }
-
-    Wire getOutputWire(int idx) throws InvalidConnectionException {
-        if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
-
-        return outputs[idx]
-    }
-
-    /**
-     * This resets all the incoming values to notset for current chip only
-     */
-    void reset() {
-        inputValues.each { it = InputValue.notset }
-        outputValues.each { it = InputValue.notset }
-    }
-
-    /**
-     * This resets this chip and all chips connected on outputs
-     */
-    void resetAll() {
-        reset()
-
-        outputs.each { it.outputs.each { it.first.resetAll() } }
+    void addOutputWire(Chip toChip, int toInput) {
+        addOutputWire(0, toChip, toInput)
     }
 
     /**
@@ -145,22 +79,14 @@ abstract class Chip {
      * @return
      */
     int outputCount() {
-        return outputs.length
-    }
-
-    Chip getOutputChip() {
-        return outputChip
-    }
-
-    void setOutputChip(Chip outputChip) {
-        this.outputChip = outputChip
+        return outputValues.length
     }
 
     /**
      * Takes a single input value
      * @param idx
      */
-    void input(int idx, InputValue value) throws InvalidConnectionException {
+    void input(int idx, InputValue value) {
         if (idx < 0 || idx >= inputCount()) throw new InvalidConnectionException(idx)
 
         inputValues[idx] = value
@@ -168,20 +94,6 @@ abstract class Chip {
         if (readyToProcess()) {
             process()
         }
-    }
-
-    InputValue getInput(int idx) throws InvalidConnectionException {
-        if (idx < 0 || idx >= inputCount()) throw new InvalidConnectionException(idx)
-
-        inputValues[idx]
-    }
-
-    void setInputOn(int idx) throws InvalidConnectionException {
-        input(idx, InputValue.on)
-    }
-
-    void setInputOff(int idx) throws InvalidConnectionException {
-        input(idx, InputValue.off)
     }
 
     /**
@@ -193,7 +105,7 @@ abstract class Chip {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
         outputValues[idx] = InputValue.on
-        outputs[idx].setValueOn()
+        outputWires.each { it.outputValue(idx, InputValue.on) }
     }
 
     protected void output(int idx, InputValue value) {
@@ -214,11 +126,11 @@ abstract class Chip {
      * @param idx
      * @throws InvalidConnectionException
      */
-    protected void setOutputOff(int idx) throws InvalidConnectionException {
+    protected void setOutputOff(int idx) {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
         outputValues[idx] = InputValue.off
-        outputs[idx].setValueOff()
+        outputWires.each { it.outputValue(idx, InputValue.on) }
     }
 
     InputValue getOutput(int idx) {
@@ -227,11 +139,19 @@ abstract class Chip {
         getOutputChip().outputValues[idx]
     }
 
-    /**
-     * This is the internal logic of the chip that sets the outputValues based
-     * on the inputValues.  This will only be called if readyToProcess is true.
-     */
-    abstract protected void process()
+    InputValue getInput(int idx) {
+        if (idx < 0 || idx >= inputCount()) throw new InvalidConnectionException(idx)
+
+        inputValues[idx]
+    }
+
+    void setInputOn(int idx) throws InvalidConnectionException {
+        input(idx, InputValue.on)
+    }
+
+    void setInputOff(int idx) throws InvalidConnectionException {
+        input(idx, InputValue.off)
+    }
 
     /**
      * Indicates that all inputs have been received and it is ready to process
@@ -241,14 +161,80 @@ abstract class Chip {
         return inputValues.find { it == InputValue.notset } == null
     }
 
-    String getName() {
-        return name
+    protected void process() {
+
     }
 
-    void setName(String name) {
-        this.name = name
+    /**
+     * This resets all the incoming values to notset for current chip only
+     */
+    void reset() {
+        inputValues.each { it = InputValue.notset }
+        outputValues.each { it = InputValue.notset }
     }
-/**
+
+    /**
+     * This resets this chip and all chips connected on outputs
+     */
+    void resetAll() {
+        reset()
+
+        outputWires.each { it.second.resetAll() }
+    }
+
+    /**
+     * Sets the input from a binary string (e.g., "0110"
+     * starting at input 0.
+     * Will throw an exception if the string of values
+     * would exceed the number of inputs.  If the string
+     * is shorter than the number of inputs, then the
+     * extra inputs will not be set.
+     *
+     * @param binaryValues
+     */
+    void setInputs(String binaryValues) {
+        setInputs(0, binaryValues)
+    }
+
+    /**
+     * Sets the input from a binary string (e.g., "0110")
+     *  starting at the given startingIndex.
+     * Will throw an exception if the string of values
+     * and the startingIndex would exceed the number of inputs
+     *
+     * @param startingIndex
+     * @param binaryValues
+     */
+    void setInputs(int startingIndex, String binaryValues) {
+        if (binaryValues.length() + startingIndex > inputCount()) {
+            throw new InvalidInputValueException("Invalid input value count: Expecting ${inputCount()}, found ${binaryValues.length()}")
+        }
+
+        binaryValues.toCharArray().eachWithIndex { it, idx -> owner.input(idx + startingIndex, InputValue.fromBinary(it)) }
+    }
+
+    /**
+     * Returns all output values as a binary string, e.g., "011010"
+     *
+     * @return
+     */
+    String getOutputString() {
+        String result = ""
+
+        outputChip.outputValues.eachWithIndex { it, idx -> result += Integer.toString(it.binary) }
+
+        return result
+    }
+
+    Chip getOutputChip() {
+        return outputChip
+    }
+
+    void setOutputChip(Chip outputChip) {
+        this.outputChip = outputChip
+    }
+
+    /**
      * This method is a way
      * @param name
      * @return
@@ -257,7 +243,4 @@ abstract class Chip {
         return ChipStash.getChip(name)
     }
 
-    static Chip getExternalInputChip(int connections) {
-        return new ExternalInput(connections)
-    }
 }

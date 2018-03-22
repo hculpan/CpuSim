@@ -5,10 +5,6 @@ class Or extends Chip {
         super(2, 1)
     }
 
-    Or(Wire output) {
-        super(2, output)
-    }
-
     @Override
     protected void process() {
         if (getInput(0) == InputValue.on || getInput(1) == InputValue.on) {

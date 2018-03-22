@@ -79,7 +79,7 @@ class SimRunnerTest extends GroovyTestCase {
         xor.setInputOn(0)
         xor.setInputOn(1)
 
-        println "Inputs: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutput(0).binary}"
+        println "Xor: ${xor.getInput(0).binary} ${xor.getInput(1).binary} : ${xor.getOutput(0).binary}"
         assert xor.getOutput(0).binary == 0
 
         xor = ChipStash.getChip("Xor")
@@ -93,13 +93,17 @@ class SimRunnerTest extends GroovyTestCase {
 
     @Test
     void testRunSim_Filesystem() {
-        Chip xor = ChipStash.getChip("Xor3")
+        Chip chip = ChipStash.getChip("And16")
 
-        xor.setInputOn(0)
-        xor.setInputOn(1)
-        xor.setInputOff(2)
+        chip.setInputs( 0, "1011001000011111")
+        chip.setInputs(16, "1011000001010111")
 
-        println "Xor3: ${xor.getInput(0).binary} ${xor.getInput(1).binary} ${xor.getInput(2).binary}: ${xor.getOutput(0).binary}"
-        assert xor.getOutput(0).binary == 0
+        print "And16: "
+        for (int i = 0; i < 32; i+=2) {
+            print "${chip.getInput(i).binary} ${chip.getInput(i + 1).binary} "
+        }
+//        println "Xor3: ${xor.getInput(0).binary} ${xor.getInput(1).binary} ${xor.getInput(2).binary}: ${xor.getOutput(0).binary}"
+
+        assert chip.getOutputString() == "1011000000010111"
     }
 }

@@ -1,10 +1,6 @@
 package org.culpan.computersim.chips
 
 class Nand extends Chip {
-    Nand(Wire output) {
-        super(2, output)
-    }
-
     Nand() {
         super(2, 1)
     }

@@ -24,14 +24,19 @@ class SimRunner {
             input.setName("input")
             chipVariables["output"] = output
             output.setName("output")
+            chipVariables["out"] = System.out
         }
 
         def getVariable(String name) {
+            if (name == null) return
+
             int idx
             if ( (idx = name.lastIndexOf('.')) > -1) {
                 name = name.substring(idx + 1)
             }
-            if (!chipVariables[name]) {
+            if (name.matches("\\d+")) {
+                return Integer.parseInt(name)
+            } else if (!chipVariables[name]) {
                 println "Instantiating variable: ${name}"
                 chipVariables[name] = Chip.getChip(name)
             }

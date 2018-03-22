@@ -5,8 +5,7 @@ import org.junit.Test
 class AndTest extends GroovyTestCase {
     @Test
     void testAnd01() {
-        TestWire testWire = new TestWire()
-        Chip chip = new And(testWire)
+        Chip chip = new And()
 
         assertFalse(chip.readyToProcess())
 
@@ -16,13 +15,12 @@ class AndTest extends GroovyTestCase {
         chip.input(1, InputValue.on)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.off
+        assert chip.getOutput(0) == InputValue.off
     }
 
     @Test
     void testAnd00() {
-        TestWire testWire = new TestWire()
-        Chip chip = new And(testWire)
+        Chip chip = new And()
 
         assertFalse(chip.readyToProcess())
 
@@ -32,13 +30,12 @@ class AndTest extends GroovyTestCase {
         chip.input(1, InputValue.off)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.off
+        assert chip.getOutput(0) == InputValue.off
     }
 
     @Test
     void testAnd10() {
-        TestWire testWire = new TestWire()
-        Chip chip = new And(testWire)
+        Chip chip = new And()
 
         assertFalse(chip.readyToProcess())
 
@@ -48,13 +45,12 @@ class AndTest extends GroovyTestCase {
         chip.input(1, InputValue.off)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.off
+        assert chip.getOutput(0) == InputValue.off
     }
 
     @Test
     void testAnd11() {
-        TestWire testWire = new TestWire()
-        Chip chip = new And(testWire)
+        Chip chip = new And()
 
         assertFalse(chip.readyToProcess())
 
@@ -64,6 +60,47 @@ class AndTest extends GroovyTestCase {
         chip.input(1, InputValue.on)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.on
+        assert chip.getOutput(0) == InputValue.on
+    }
+
+    @Test
+    void testAnd01_inputs() {
+        Chip chip = new And()
+
+        chip.setInputs("01")
+
+        assert chip.readyToProcess()
+        assert chip.getOutput(0) == InputValue.off
+    }
+
+    @Test
+    void testAnd00_inputs() {
+        Chip chip = new And()
+
+        chip.setInputs("00")
+
+        assert chip.readyToProcess()
+        assert chip.getOutput(0) == InputValue.off
+    }
+
+    @Test
+    void testAnd10_inputs() {
+        Chip chip = new And()
+
+        chip.setInputs("10")
+
+        assert chip.readyToProcess()
+        assert chip.getOutput(0) == InputValue.off
+    }
+
+    @Test
+    void testAnd11_inputs() {
+        Chip chip = new And()
+
+        chip.setInputs("11")
+
+        assert chip.readyToProcess()
+        assert chip.getOutput(0) == InputValue.on
     }
 }
+

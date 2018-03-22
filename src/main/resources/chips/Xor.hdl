@@ -7,11 +7,14 @@ inputs(2)
 outputs(1)
 
 // Define chips
-Chip c1 = Not()
-Chip c2 = Not()
-Chip c3 = And()
-Chip c4 = And()
-Chip c5 = Or()
+c1 = Not(1)
+c2 = Not(0)
+c3 = And(0, c1)
+c4 = And(c2, 1)
+c5 = Or(c3, c4)
+Out(c5)
+
+/*
 
 // Wire inputs
 wireInput(0, c2, 0)
@@ -28,3 +31,4 @@ wire(c4, 0, c5, 1)
 // Wire outputs
 wireOutput(c5, 0, 0)
 
+*/

@@ -5,8 +5,7 @@ import org.junit.Test
 class OrTest extends GroovyTestCase {
     @Test
     void testOr01() {
-        TestWire testWire = new TestWire()
-        Chip chip = new Or(testWire)
+        Chip chip = new Or()
 
         assertFalse(chip.readyToProcess())
 
@@ -16,13 +15,12 @@ class OrTest extends GroovyTestCase {
         chip.input(1, InputValue.on)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.on
+        assert chip.getOutput(0) == InputValue.on
     }
 
     @Test
     void testOr00() {
-        TestWire testWire = new TestWire()
-        Chip chip = new Or(testWire)
+        Chip chip = new Or()
 
         assertFalse(chip.readyToProcess())
 
@@ -32,13 +30,12 @@ class OrTest extends GroovyTestCase {
         chip.input(1, InputValue.off)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.off
+        assert chip.getOutput(0) == InputValue.off
     }
 
     @Test
     void testOr10() {
-        TestWire testWire = new TestWire()
-        Chip chip = new Or(testWire)
+        Chip chip = new Or()
 
         assertFalse(chip.readyToProcess())
 
@@ -48,13 +45,12 @@ class OrTest extends GroovyTestCase {
         chip.input(1, InputValue.off)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.on
+        assert chip.getOutput(0) == InputValue.on
     }
 
     @Test
     void testOr11() {
-        TestWire testWire = new TestWire()
-        Chip chip = new Or(testWire)
+        Chip chip = new Or()
 
         assertFalse(chip.readyToProcess())
 
@@ -64,6 +60,6 @@ class OrTest extends GroovyTestCase {
         chip.input(1, InputValue.on)
 
         assert chip.readyToProcess()
-        assert testWire.value == InputValue.on
+        assert chip.getOutput(0) == InputValue.on
     }
 }

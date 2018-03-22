@@ -30,6 +30,9 @@ class ChipStash {
                 case "Not":
                     result = new Not()
                     break
+                case "Nand":
+                    result = new Nand()
+                    break;
                 case "DummyChip":
                     result = new DummyChip()
                     break
@@ -43,15 +46,19 @@ class ChipStash {
                     result = loadFromClasspath(name)
                     if (!result) {
                         result = loadFromFilesystem(name)
-                        if (!result) {
+/*                        if (!result) {
                             throw new MissingChipDefinitionException(name)
+                        } */
+                        if (result) {
+                            chips.put(name, result)
+                            result = result.clone()
                         }
                     }
-                    chips.put(name, result)
-                    result = result.clone()
             }
-            result.setName(name)
-            result.resetAll()
+            if (result) {
+                result.setName(name)
+                result.resetAll()
+            }
         } else {
             result = result.clone()
             result.resetAll()
@@ -77,8 +84,10 @@ class ChipStash {
             def resource = new File(paths.get(i) + File.separator + "${name}.hdl")
             if (resource) {
                 SimRunner simRunner = new SimRunner()
-                result = simRunner.loadChipWithScript(resource.toURI())
-                result = result.clone()
+                if (resource.exists()) {
+                    result = simRunner.loadChipWithScript(resource.toURI())
+                    result = result.clone()
+                }
             }
         }
         result
