@@ -9,7 +9,7 @@ class NotTest extends GroovyTestCase {
 
         assertFalse(not.readyToProcess())
 
-        not.input(0, InputValue.off)
+        not.setInputOff(0)
         assert not.readyToProcess()
 
         assert not.getOutput(0) == InputValue.on
@@ -21,10 +21,24 @@ class NotTest extends GroovyTestCase {
 
         assertFalse(not.readyToProcess())
 
-        not.input(0, InputValue.on)
+        not.setInputOn(0)
         assert not.readyToProcess()
 
         assert not.getOutput(0) == InputValue.off
+    }
+
+    @Test
+    void testNot1_WithExternal() {
+        Chip not = new Not()
+        Chip externalOutput = new ExternalOutput()
+        not.addOutputWire(externalOutput)
+
+        assertFalse(not.readyToProcess())
+
+        not.setInputOn(0)
+        assert not.readyToProcess()
+
+        assert externalOutput.getOutput(0) == InputValue.off
     }
 
 }

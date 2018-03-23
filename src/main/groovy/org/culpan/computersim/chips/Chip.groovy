@@ -19,7 +19,7 @@ class Chip {
 
         void outputValue(int fromIndex, InputValue inputValue) {
             if (this.fromIndex == fromIndex) {
-                toChip.output(toIndex, inputValue)
+                toChip.input(toIndex, inputValue)
             }
         }
     }
@@ -33,6 +33,8 @@ class Chip {
     protected final List<Wire> outputWires = new ArrayList<Wire>()
 
     private Chip outputChip = this
+
+    private final static Map<String, Chip> chipMap = new HashMap<>()
 
     Chip() {
         initialize(0, 0)
@@ -51,6 +53,59 @@ class Chip {
         outputValues = new InputValue[outputCount]
         for (int i = 0; i < outputValues.length; i++) {
             outputValues[i] = InputValue.notset
+        }
+    }
+
+    @Override
+    Chip clone() {
+        Chip result = this.class.newInstance()
+        result.name = this.name
+        result.initialize(this.inputCount(), this.outputCount())
+
+        inputValues.eachWithIndex { InputValue entry, int i ->
+            result.inputValues[i] = inputValues[i]
+        }
+
+        outputValues.eachWithIndex { InputValue entry, int i ->
+            result.outputValues[i] = outputValues[i]
+        }
+
+        outputWires.eachWithIndex { Wire entry, int i ->
+            Wire oWire = entry
+            Chip newChip
+            if (chipMap.containsKey(entry.toChip.toString())) {
+                newChip = chipMap.get(entry.toChip.toString())
+            } else {
+                newChip = entry.toChip.clone()
+                chipMap.put(entry.toChip.toString(), newChip)
+            }
+            result.addOutputWire(entry.fromIndex, newChip, entry.toIndex)
+        }
+
+        // Find correct output chip
+        if (this == outputChip) {
+            result.outputChip = result
+        } else {
+            result.outputChip = findChipType(result, this.outputChip.class)
+        }
+
+        result.resetAll()
+        return result
+    }
+
+    Chip findChipType(Chip rootChip, Class outputChipClass) {
+        if (rootChip.class == outputChipClass) {
+            return rootChip
+        } else {
+            Chip result
+            for (int i = 0; i < rootChip.outputWires.size(); i++) {
+                result = findChipType(rootChip.outputWires.get(i).toChip, outputChipClass)
+                if (result) {
+                    break
+                }
+            }
+
+            return result
         }
     }
 
@@ -87,7 +142,8 @@ class Chip {
      * @param idx
      */
     void input(int idx, InputValue value) {
-        if (idx < 0 || idx >= inputCount()) throw new InvalidConnectionException(idx)
+        if (idx < 0 || idx >= inputCount())
+            throw new InvalidConnectionException(idx)
 
         inputValues[idx] = value
 
@@ -102,7 +158,8 @@ class Chip {
      * @throws InvalidConnectionException
      */
     protected void setOutputOn(int idx) {
-        if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
+        if (idx < 0 || idx >= outputCount())
+            throw new InvalidConnectionException(idx)
 
         outputValues[idx] = InputValue.on
         outputWires.each { it.outputValue(idx, InputValue.on) }
@@ -130,7 +187,7 @@ class Chip {
         if (idx < 0 || idx >= outputCount()) throw new InvalidConnectionException(idx)
 
         outputValues[idx] = InputValue.off
-        outputWires.each { it.outputValue(idx, InputValue.on) }
+        outputWires.each { it.outputValue(idx, InputValue.off) }
     }
 
     InputValue getOutput(int idx) {
@@ -179,7 +236,7 @@ class Chip {
     void resetAll() {
         reset()
 
-        outputWires.each { it.second.resetAll() }
+        outputWires.each { it.toChip.resetAll() }
     }
 
     /**
@@ -243,4 +300,7 @@ class Chip {
         return ChipStash.getChip(name)
     }
 
+    List<Wire> getOutputWires() {
+        return outputWires
+    }
 }

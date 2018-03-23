@@ -13,22 +13,3 @@ c3 = And(0, c1)
 c4 = And(c2, 1)
 c5 = Or(c3, c4)
 Out(c5)
-
-/*
-
-// Wire inputs
-wireInput(0, c2, 0)
-wireInput(0, c3, 0)
-wireInput(1, c1, 0)
-wireInput(1, c4, 1)
-
-// Internal wires
-wire(c1, 0, c3, 1)
-wire(c2, 0, c4, 0)
-wire(c3, 0, c5, 0)
-wire(c4, 0, c5, 1)
-
-// Wire outputs
-wireOutput(c5, 0, 0)
-
-*/
